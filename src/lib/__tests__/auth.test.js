@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { nextDelayMs, hashPin } from '../auth.js';
+import { nextDelayMs, hashPin, shouldLock } from '../auth.js';
 
 describe('пауза после неверных попыток', () => {
   it('даёт три попытки без паузы', () => {
@@ -11,6 +11,20 @@ describe('пауза после неверных попыток', () => {
   it('после трёх неверных вводов включает паузу', () => {
     expect(nextDelayMs(3)).toBe(30000);
     expect(nextDelayMs(7)).toBe(30000);
+  });
+});
+
+describe('порог авто-блокировки', () => {
+  it('не блокирует, если в фоне провели меньше минуты', () => {
+    expect(shouldLock(1000, 1000 + 59_000)).toBe(false);
+  });
+
+  it('блокирует после минуты в фоне', () => {
+    expect(shouldLock(1000, 1000 + 61_000)).toBe(true);
+  });
+
+  it('не блокирует, если приложение не уходило в фон', () => {
+    expect(shouldLock(null, Date.now())).toBe(false);
   });
 });
 

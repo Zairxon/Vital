@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { DbProvider, useDb } from './state/DbContext.jsx';
+import { shouldLock } from './lib/auth.js';
 import Lock from './pages/Lock.jsx';
 import People from './pages/People.jsx';
 import Person from './pages/Person.jsx';
@@ -31,6 +32,27 @@ function Routed() {
 
 export default function App() {
   const [unlocked, setUnlocked] = useState(false);
+  const lastBackgroundAt = useRef(null);
+
+  useEffect(() => {
+    let remove;
+    // Короткое переключение (уведомление, буфер обмена) не должно требовать
+    // PIN заново — блокируем только если приложение пробыло в фоне минуту
+    // и дольше (порог — в auth.js, shouldLock).
+    import('@capacitor/app').then(({ App: CapApp }) => {
+      CapApp.addListener('appStateChange', ({ isActive }) => {
+        if (!isActive) {
+          lastBackgroundAt.current = Date.now();
+          return;
+        }
+        if (shouldLock(lastBackgroundAt.current, Date.now())) {
+          setUnlocked(false);
+        }
+        lastBackgroundAt.current = null;
+      }).then((handle) => { remove = handle; });
+    });
+    return () => remove?.remove();
+  }, []);
 
   // Пока не введён PIN, приложение вообще не показывает данные —
   // документы не должны мелькнуть за экраном блокировки.

@@ -42,3 +42,44 @@ export async function checkPin(pin) {
 export async function clearPin() {
   await Preferences.remove({ key: PIN_HASH_KEY });
 }
+
+// ── Авто-блокировка при уходе в фон ─────────────────────────────────────
+
+const LOCK_AFTER_MS = 60_000;
+
+/**
+ * lastBackgroundAt — момент ухода в фон (null, если не уходило).
+ * Порог в минуту: короткое переключение на другое приложение (например,
+ * чтобы скопировать текст) не должно требовать PIN заново.
+ */
+export function shouldLock(lastBackgroundAt, now) {
+  if (!lastBackgroundAt) return false;
+  return now - lastBackgroundAt >= LOCK_AFTER_MS;
+}
+
+// ── Биометрия ────────────────────────────────────────────────────────────
+
+export async function canUseBiometric() {
+  try {
+    const { BiometricAuth } = await import('@aparajita/capacitor-biometric-auth');
+    const result = await BiometricAuth.checkBiometry();
+    return result.isAvailable;
+  } catch {
+    return false; // плагин не работает в браузере — это ожидаемо, не ошибка
+  }
+}
+
+export async function unlockByBiometric() {
+  try {
+    const { BiometricAuth } = await import('@aparajita/capacitor-biometric-auth');
+    await BiometricAuth.authenticate({
+      reason: 'Подтвердите вход в Vital',
+      cancelTitle: 'Ввести PIN',
+      androidTitle: 'Vital',
+      androidSubtitle: 'Подтвердите вход',
+    });
+    return true;
+  } catch {
+    return false; // отмена или ошибка сканера — просто остаёмся на экране PIN
+  }
+}

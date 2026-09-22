@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { hasPin, setPin, checkPin, nextDelayMs } from '../lib/auth.js';
+import { hasPin, setPin, checkPin, nextDelayMs, canUseBiometric, unlockByBiometric } from '../lib/auth.js';
 import Icon from '../components/Icon.jsx';
 
 const PIN_LENGTH = 4;
@@ -18,10 +18,31 @@ export default function Lock({ onUnlock }) {
   const [failCount, setFailCount] = useState(0);
   const [waitUntil, setWaitUntil] = useState(0);
   const [now, setNow] = useState(Date.now());
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
+  const triedBiometric = useRef(false);
+  // Источник истины для набранных цифр — обычный `digits` из замыкания
+  // не годится: два нажатия подряд в одном тике читают один и тот же
+  // "старый" digits и второе стирает первое. Ref обновляется синхронно.
+  const digitsRef = useRef('');
 
   useEffect(() => {
     hasPin().then((exists) => setMode(exists ? 'enter' : 'setup'));
+    canUseBiometric().then(setBiometricAvailable);
   }, []);
+
+  // При входе (не при первой настройке PIN) сразу предлагаем отпечаток —
+  // пользователю не нужно тянуться к клавиатуре, если сканер уже наготове.
+  useEffect(() => {
+    if (mode !== 'enter' || !biometricAvailable || triedBiometric.current) return;
+    triedBiometric.current = true;
+    tryBiometric();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, biometricAvailable]);
+
+  async function tryBiometric() {
+    const ok = await unlockByBiometric();
+    if (ok) onUnlock();
+  }
 
   useEffect(() => {
     if (waitUntil <= Date.now()) return;
@@ -36,19 +57,21 @@ export default function Lock({ onUnlock }) {
     if (locked || !key) return;
     setError(null);
     if (key === 'del') {
-      setDigits((d) => d.slice(0, -1));
+      digitsRef.current = digitsRef.current.slice(0, -1);
+      setDigits(digitsRef.current);
       return;
     }
-    if (digits.length >= PIN_LENGTH) return;
-    const next = digits + key;
-    setDigits(next);
-    if (next.length === PIN_LENGTH) submit(next);
+    if (digitsRef.current.length >= PIN_LENGTH) return;
+    digitsRef.current += key;
+    setDigits(digitsRef.current);
+    if (digitsRef.current.length === PIN_LENGTH) submit(digitsRef.current);
   }
 
   async function submit(pin) {
     if (mode === 'setup') {
       setFirstPin(pin);
       setMode('confirm');
+      digitsRef.current = '';
       setDigits('');
       return;
     }
@@ -80,6 +103,7 @@ export default function Lock({ onUnlock }) {
 
   function fail(message) {
     setError(message);
+    digitsRef.current = '';
     setDigits('');
     setShake(true);
     setTimeout(() => setShake(false), 400);
@@ -119,6 +143,13 @@ export default function Lock({ onUnlock }) {
             ) : <span key={i} />
           ))}
         </div>
+
+        {mode === 'enter' && biometricAvailable && (
+          <button className="lock-biometric" onClick={tryBiometric} disabled={locked}>
+            <Icon name="fingerprint" size={26} />
+            По отпечатку
+          </button>
+        )}
       </div>
     </div>
   );
