@@ -1,0 +1,66 @@
+/* Тема «Botanical Earth» — общая для проектов, источник: BuildFlow */
+:root {
+  /* ── Поверхности ── */
+  --bg: #1C1612;
+  --bg-card: #241E18;
+  --bg-elevated: #2E271F;
+  --border: rgba(255, 255, 255, 0.12);
+  --border-focus: #D08A52;
+  --text: #F5EDE0;
+  --text-muted: #9C8B75;
+  --text-hint: #6B5A45;
+  --text-on-accent: #1C1612;
+
+  /* ── Акценты ── */
+  --accent: #C4933F;
+  --accent-hover: #C4793E;
+  --accent-glow: rgba(196, 147, 63, 0.25);
+  --success: #6B6F3C;
+  --warning: #C56A2E;
+  --danger: #B4522A;
+  --gold: #D08A52;
+
+  /* ── Типографика ── */
+  --font-base: 'Inter', system-ui, sans-serif;
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-md: 18px;
+  --text-lg: 22px;
+  --text-xl: 26px;
+  --fw-normal: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  /* ── Отступы (сетка 8dp) ── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* ── Скругления ── */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  /* ── Тени ── */
+  --shadow-sm: 0 1px 3px #0000001a, 0 1px 2px #0000000f;
+  --shadow-md: 0 4px 16px #00000026, 0 2px 4px #0000001a;
+  --shadow-lg: 0 8px 32px #00000033, 0 4px 8px #00000026;
+
+  /* ── Движение ── */
+  --transition-fast: 150ms cubic-bezier(.4, 0, .2, 1);
+  --transition-base: 250ms cubic-bezier(.4, 0, .2, 1);
+  --transition-spring: 300ms cubic-bezier(.34, 1.56, .64, 1);
+
+  color-scheme: dark only;
+}
