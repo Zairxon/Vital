@@ -1,6 +1,7 @@
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { DbProvider, useDb } from './state/DbContext.jsx';
 import People from './pages/People.jsx';
+import Person from './pages/Person.jsx';
 
 function Routed() {
   const { ready } = useDb();
@@ -18,6 +19,7 @@ function Routed() {
   return (
     <Routes>
       <Route path="/" element={<People />} />
+      <Route path="/person/:id" element={<Person />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
