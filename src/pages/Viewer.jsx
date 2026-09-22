@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { useDb } from '../state/DbContext.jsx';
 import { PAGE_KINDS } from '../lib/constants.js';
-import { formatBytes, openExternally } from '../lib/files.js';
+import { formatBytes, openExternally, shareFiles } from '../lib/files.js';
 import Icon from '../components/Icon.jsx';
 import ZoomImage from '../components/ZoomImage.jsx';
 import DocSheet from '../components/DocSheet.jsx';
+import Sheet from '../components/Sheet.jsx';
 
 export default function Viewer() {
   const { id } = useParams();
@@ -14,6 +15,9 @@ export default function Viewer() {
   const [index, setIndex] = useState(0);
   const [editing, setEditing] = useState(false);
   const [openError, setOpenError] = useState(null);
+  const [choosingShare, setChoosingShare] = useState(false);
+  const [shareBusy, setShareBusy] = useState(false);
+  const [shareError, setShareError] = useState(null);
 
   const doc = db.documents.find((d) => d.id === id);
 
@@ -42,6 +46,28 @@ export default function Viewer() {
       await openExternally(page.fileId);
     } catch {
       setOpenError('На телефоне нет приложения, которое открывает такой файл. Установите Word или PDF-читалку.');
+    }
+  }
+
+  function share() {
+    if (total > 1) { setChoosingShare(true); return; }
+    doShare([page.fileId]);
+  }
+
+  async function doShare(fileIds) {
+    setChoosingShare(false);
+    setShareError(null);
+    setShareBusy(true);
+    try {
+      await shareFiles(fileIds, doc.title);
+    } catch (e) {
+      // Отмену в системном листе «Поделиться» пользователь видит сам —
+      // показывать ошибку в этом случае не нужно.
+      if (e?.name !== 'AbortError') {
+        setShareError('Не удалось отправить файл. Попробуйте ещё раз.');
+      }
+    } finally {
+      setShareBusy(false);
     }
   }
 
@@ -95,10 +121,16 @@ export default function Viewer() {
         )}
       </div>
 
+      {shareError && (
+        <div className="banner" style={{ margin: 'var(--space-2) var(--space-4) 0', background: 'rgba(180,82,42,.25)' }}>
+          {shareError}
+        </div>
+      )}
+
       <div className="viewer-bottom">
-        <button className="viewer-action" disabled style={{ opacity: .45 }}>
+        <button className="viewer-action" disabled={shareBusy} onClick={share}>
           <Icon name="share" size={20} />
-          Отправить
+          {shareBusy ? 'Отправляю…' : 'Отправить'}
         </button>
         <button className="viewer-action" onClick={() => setEditing(true)}>
           <Icon name="edit" size={20} />
@@ -126,6 +158,25 @@ export default function Viewer() {
           }}
           onClose={() => setEditing(false)}
         />
+      )}
+
+      {choosingShare && (
+        <Sheet title="Что отправить?" onClose={() => setChoosingShare(false)}>
+          <button className="source-item" onClick={() => doShare([page.fileId])}>
+            <span className="source-icon"><Icon name="file" size={20} /></span>
+            <span>
+              <span className="source-label" style={{ display: 'block' }}>Эту страницу</span>
+              <span className="source-hint">{index + 1} из {total}</span>
+            </span>
+          </button>
+          <button className="source-item" onClick={() => doShare(doc.pages.map((p) => p.fileId))}>
+            <span className="source-icon"><Icon name="share" size={20} /></span>
+            <span>
+              <span className="source-label" style={{ display: 'block' }}>Весь документ</span>
+              <span className="source-hint">{total} страниц</span>
+            </span>
+          </button>
+        </Sheet>
       )}
     </div>
   );

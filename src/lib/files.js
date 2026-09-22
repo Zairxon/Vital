@@ -204,6 +204,50 @@ export async function openExternally(fileId) {
   await FileOpener.open({ filePath: uri, contentType: mime });
 }
 
+/**
+ * Отправить один или несколько файлов через системное меню «Поделиться»
+ * (Telegram, WhatsApp, почта). На телефоне — нативный лист Share, в
+ * браузере — Web Share API, а если браузер его не умеет — скачивание
+ * файлов по одному, чтобы функция не была полностью бесполезна при отладке.
+ */
+export async function shareFiles(fileIds, title = 'Документ') {
+  if (!fileIds.length) return;
+
+  if (isNative()) {
+    const { Filesystem, Directory } = await fs();
+    const uris = [];
+    for (const id of fileIds) {
+      const { uri } = await Filesystem.getUri({ path: `${FILES_DIR}/${id}`, directory: Directory.Data });
+      uris.push(uri);
+    }
+    const { Share } = await import('@capacitor/share');
+    await Share.share({ title, files: uris, dialogTitle: 'Отправить' });
+    return;
+  }
+
+  const files = [];
+  for (const id of fileIds) {
+    const blob = await readBlob(id);
+    files.push(new File([blob], id, { type: blob.type }));
+  }
+
+  if (navigator.canShare?.({ files })) {
+    await navigator.share({ title, files });
+    return;
+  }
+
+  // Ни один браузер в CI/дев-режиме не умеет Web Share с файлами —
+  // используем это как понятную деградацию, а не тихий сбой.
+  for (const file of files) {
+    const url = URL.createObjectURL(file);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = file.name;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+}
+
 export function formatBytes(bytes) {
   if (bytes < 1024) return `${bytes} Б`;
   if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} КБ`;
