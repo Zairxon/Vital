@@ -3,7 +3,7 @@ import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { useDb } from '../state/DbContext.jsx';
 import { documentsOf } from '../lib/model.js';
 import { groupByType } from '../lib/search.js';
-import { takePhoto, pickFromGallery } from '../lib/pick.js';
+import { takePhoto, pickFromGallery, pickFiles } from '../lib/pick.js';
 import { PAGE_KINDS } from '../lib/constants.js';
 import Icon from '../components/Icon.jsx';
 import Thumb from '../components/Thumb.jsx';
@@ -31,13 +31,18 @@ export default function Person() {
   async function pick(source) {
     setError(null);
     try {
-      const picked = source === 'camera' ? await takePhoto() : await pickFromGallery();
+      const picked = source === 'camera' ? await takePhoto()
+        : source === 'file' ? await pickFiles()
+          : await pickFromGallery();
       if (picked.length) setDraft(picked);
     } catch (e) {
+      const permission = String(e?.message || '').toLowerCase().includes('permission');
       setError(
-        String(e?.message || '').toLowerCase().includes('permission') || e?.code === 'OS-PLUG-CAM-0004'
-          ? 'Нет доступа к камере или галерее. Разрешите доступ в настройках телефона.'
-          : 'Не удалось получить фото. Попробуйте ещё раз.'
+        permission
+          ? 'Нет доступа к камере, галерее или файлам. Разрешите доступ в настройках телефона.'
+          : source === 'file'
+            ? 'Не удалось прочитать файл. Попробуйте выбрать другой.'
+            : 'Не удалось получить фото. Попробуйте ещё раз.'
       );
     }
   }

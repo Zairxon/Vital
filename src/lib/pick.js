@@ -55,6 +55,31 @@ export async function takePhoto() {
   return [{ blob, name: `photo.${photo.format || 'jpg'}`, mime: blob.type || 'image/jpeg' }];
 }
 
+/** Типы файлов, которые приложение принимает помимо фотографий. */
+export const FILE_TYPES = [
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+];
+
+/** Выбрать файлы с телефона — сканы PDF и объективки в Word. */
+export async function pickFiles() {
+  if (!isNative()) {
+    return pickViaInput({ accept: FILE_TYPES.join(','), multiple: true });
+  }
+
+  const { FilePicker } = await import('@capawesome/capacitor-file-picker');
+  const result = await FilePicker.pickFiles({ types: FILE_TYPES, readData: true });
+
+  const out = [];
+  for (const file of result.files || []) {
+    const bytes = Uint8Array.from(atob(file.data), (c) => c.charCodeAt(0));
+    const mime = file.mimeType || 'application/octet-stream';
+    out.push({ blob: new Blob([bytes], { type: mime }), name: file.name, mime });
+  }
+  return out;
+}
+
 /** Выбрать одно или несколько фото из галереи. */
 export async function pickFromGallery() {
   if (!isNative()) {

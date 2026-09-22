@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { useDb } from '../state/DbContext.jsx';
 import { PAGE_KINDS } from '../lib/constants.js';
-import { formatBytes } from '../lib/files.js';
+import { formatBytes, openExternally } from '../lib/files.js';
 import Icon from '../components/Icon.jsx';
 import ZoomImage from '../components/ZoomImage.jsx';
 import DocSheet from '../components/DocSheet.jsx';
@@ -13,6 +13,7 @@ export default function Viewer() {
   const { db, actions } = useDb();
   const [index, setIndex] = useState(0);
   const [editing, setEditing] = useState(false);
+  const [openError, setOpenError] = useState(null);
 
   const doc = db.documents.find((d) => d.id === id);
 
@@ -33,6 +34,15 @@ export default function Viewer() {
 
   function step(delta) {
     setIndex((i) => Math.min(Math.max(i + delta, 0), total - 1));
+  }
+
+  async function open() {
+    setOpenError(null);
+    try {
+      await openExternally(page.fileId);
+    } catch {
+      setOpenError('На телефоне нет приложения, которое открывает такой файл. Установите Word или PDF-читалку.');
+    }
   }
 
   return (
@@ -70,7 +80,10 @@ export default function Viewer() {
               <div style={{ fontWeight: 600 }}>{page.name}</div>
               <div style={{ opacity: .7, fontSize: 'var(--text-sm)' }}>{formatBytes(page.size || 0)}</div>
             </div>
-            <button className="btn btn-primary" disabled>Открыть (скоро)</button>
+            <button className="btn btn-primary" onClick={open}>
+              Открыть {page.kind === PAGE_KINDS.PDF ? 'PDF' : 'в Word'}
+            </button>
+            {openError && <div style={{ fontSize: 'var(--text-sm)', color: '#E08B72' }}>{openError}</div>}
           </div>
         )}
 

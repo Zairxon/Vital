@@ -181,6 +181,29 @@ export async function storageStats() {
   }
 }
 
+/**
+ * Открыть файл во внешнем приложении телефона: Word, Google Docs,
+ * PDF-читалка. Своего просмотрщика для .docx в приложении нет намеренно —
+ * вёрстка объективок с таблицами в нём бы разъехалась.
+ */
+export async function openExternally(fileId) {
+  const mime = mimeFor(fileId);
+
+  if (!isNative()) {
+    const url = await getDisplayUrl(fileId);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileId;
+    a.click();
+    return;
+  }
+
+  const { Filesystem, Directory } = await fs();
+  const { uri } = await Filesystem.getUri({ path: `${FILES_DIR}/${fileId}`, directory: Directory.Data });
+  const { FileOpener } = await import('@capacitor-community/file-opener');
+  await FileOpener.open({ filePath: uri, contentType: mime });
+}
+
 export function formatBytes(bytes) {
   if (bytes < 1024) return `${bytes} Б`;
   if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} КБ`;

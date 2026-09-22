@@ -2,7 +2,7 @@ import Sheet from './Sheet.jsx';
 import Icon from './Icon.jsx';
 
 /** Откуда взять страницы документа. */
-export default function AddSheet({ onPick, onClose, allowFiles = false }) {
+export default function AddSheet({ onPick, onClose, allowFiles = true }) {
   const items = [
     { id: 'camera', icon: 'camera', label: 'Снять камерой', hint: 'Сфотографировать документ' },
     { id: 'gallery', icon: 'image', label: 'Выбрать из галереи', hint: 'Можно несколько фото сразу' },
