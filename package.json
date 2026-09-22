@@ -26,6 +26,7 @@
     "react-zoom-pan-pinch": "^3.6.1"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.5.2",
     "@vitejs/plugin-react": "^4.3.4",
     "vite": "^6.0.7",
     "vitest": "^2.1.8"

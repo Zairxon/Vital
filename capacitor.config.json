@@ -1,0 +1,8 @@
+{
+  "appId": "com.zairxon.vital",
+  "appName": "Vital",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  }
+}

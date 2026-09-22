@@ -2,8 +2,7 @@ node_modules/
 dist/
 .DS_Store
 *.local
-android/app/build/
-android/build/
+android/**/build/
 android/.gradle/
 android/local.properties
 android/app/release/
