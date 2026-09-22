@@ -19,7 +19,7 @@ export function kindOf(mime) {
  * Создание и редактирование документа. Байты пишутся на диск только при
  * сохранении — если модалку закрыли, на диске не остаётся мусора.
  */
-export default function DocSheet({ db, doc, picked = [], onCreate, onUpdate, onRemove, onAddType, onClose }) {
+export default function DocSheet({ db, doc, picked = [], startWithConfirm = false, onCreate, onUpdate, onRemove, onAddType, onClose }) {
   const [title, setTitle] = useState(doc?.title || '');
   const [type, setType] = useState(doc?.type || 'passport');
   const [newType, setNewType] = useState('');
@@ -30,7 +30,7 @@ export default function DocSheet({ db, doc, picked = [], onCreate, onUpdate, onR
   ]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
-  const [confirming, setConfirming] = useState(false);
+  const [confirming, setConfirming] = useState(startWithConfirm);
 
   // Ссылки на превью освобождаются один раз при закрытии модалки: если
   // чистить их на каждое изменение pages, удаление одной страницы погасит
