@@ -7,6 +7,7 @@ import { PAGE_KINDS } from '../lib/constants.js';
 import Icon from '../components/Icon.jsx';
 import Thumb from '../components/Thumb.jsx';
 import PersonSheet from '../components/PersonSheet.jsx';
+import { documentWord } from '../lib/format.js';
 
 export default function People() {
   const { db, warning, actions } = useDb();
@@ -30,6 +31,11 @@ export default function People() {
             aria-label="Изменить порядок"
           >
             <Icon name={reordering ? 'close' : 'up'} size={20} />
+          </button>
+        )}
+        {!searching && !reordering && (
+          <button className="icon-btn" onClick={() => navigate('/settings')} aria-label="Настройки">
+            <Icon name="settings" size={20} />
           </button>
         )}
       </div>
@@ -98,7 +104,7 @@ export default function People() {
                   <div className="person-name">{person.name}</div>
                   <div className="person-meta">
                     {person.relation ? `${person.relation} · ` : ''}
-                    {count === 0 ? 'нет документов' : `${count} ${plural(count)}`}
+                    {count === 0 ? 'нет документов' : `${count} ${documentWord(count)}`}
                   </div>
                 </div>
                 {reordering ? (
@@ -152,13 +158,4 @@ function ResultThumb({ doc }) {
       <Icon name="file" size={22} />
     </div>
   );
-}
-
-export function plural(n) {
-  const last = n % 10;
-  const two = n % 100;
-  if (two >= 11 && two <= 14) return 'документов';
-  if (last === 1) return 'документ';
-  if (last >= 2 && last <= 4) return 'документа';
-  return 'документов';
 }

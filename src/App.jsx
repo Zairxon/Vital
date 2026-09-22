@@ -6,6 +6,7 @@ import Lock from './pages/Lock.jsx';
 import People from './pages/People.jsx';
 import Person from './pages/Person.jsx';
 import Viewer from './pages/Viewer.jsx';
+import Settings from './pages/Settings.jsx';
 
 function Routed() {
   const { ready } = useDb();
@@ -25,6 +26,7 @@ function Routed() {
       <Route path="/" element={<People />} />
       <Route path="/person/:id" element={<Person />} />
       <Route path="/doc/:id" element={<Viewer />} />
+      <Route path="/settings" element={<Settings />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

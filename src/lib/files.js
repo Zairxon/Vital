@@ -95,6 +95,26 @@ export async function saveBlob(blob, ext = 'jpg') {
   return fileId;
 }
 
+/**
+ * Записать байты под уже существующим fileId — в отличие от saveBlob,
+ * не придумывает новый id. Нужна только для восстановления из бэкапа,
+ * где имена файлов должны совпасть с тем, что помнит db.json.
+ */
+export async function restoreBlob(fileId, blob) {
+  if (!isNative()) {
+    await webTx('readwrite', (store) => store.put({ blob, size: blob.size, type: blob.type }, fileId));
+    return;
+  }
+
+  const { Filesystem, Directory } = await fs();
+  await Filesystem.mkdir({ path: FILES_DIR, directory: Directory.Data, recursive: true }).catch(() => {});
+  await Filesystem.writeFile({
+    path: `${FILES_DIR}/${fileId}`,
+    directory: Directory.Data,
+    data: await blobToBase64(blob),
+  });
+}
+
 export async function readBlob(fileId) {
   if (!isNative()) {
     const rec = await webTx('readonly', (store) => store.get(fileId));
@@ -246,6 +266,37 @@ export async function shareFiles(fileIds, title = 'Документ') {
     a.click();
     URL.revokeObjectURL(url);
   }
+}
+
+/**
+ * Отправить произвольный блоб (например, ZIP-бэкап), который не хранится
+ * как fileId в базе документов. Отдельная функция от shareFiles — та
+ * читает уже сохранённые файлы приложения по id, а бэкап существует
+ * только в памяти на момент отправки.
+ */
+export async function shareBlob(blob, filename, title) {
+  if (isNative()) {
+    const { Filesystem, Directory } = await fs();
+    await Filesystem.writeFile({
+      path: filename, directory: Directory.Cache, data: await blobToBase64(blob),
+    });
+    const { uri } = await Filesystem.getUri({ path: filename, directory: Directory.Cache });
+    const { Share } = await import('@capacitor/share');
+    await Share.share({ title, files: [uri], dialogTitle: 'Сохранить резервную копию' });
+    return;
+  }
+
+  const file = new File([blob], filename, { type: blob.type });
+  if (navigator.canShare?.({ files: [file] })) {
+    await navigator.share({ title, files: [file] });
+    return;
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 export function formatBytes(bytes) {

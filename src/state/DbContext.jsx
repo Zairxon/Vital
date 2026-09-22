@@ -26,6 +26,15 @@ export function DbProvider({ children }) {
     return () => { cancelled = true; };
   }, []);
 
+  // После импорта резервной копии db.json на диске меняется в обход
+  // commit() — значит и в памяти его нужно перечитать заново.
+  async function reload() {
+    const loaded = await loadDb();
+    dbRef.current = loaded;
+    setDb(loaded);
+    setWarning(lastLoadError());
+  }
+
   const actions = useMemo(() => {
     // Запись идёт через dbRef, а не через db из замыкания: два действия
     // подряд в одном кадре не должны затирать друг друга.
@@ -56,7 +65,11 @@ export function DbProvider({ children }) {
     };
   }, []);
 
-  const value = useMemo(() => ({ db, ready: db !== null, warning, actions }), [db, warning, actions]);
+  const value = useMemo(
+    () => ({ db, ready: db !== null, warning, actions, reload }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [db, warning, actions]
+  );
 
   return <DbContext.Provider value={value}>{children}</DbContext.Provider>;
 }

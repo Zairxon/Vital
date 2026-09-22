@@ -10,7 +10,7 @@ import Thumb from '../components/Thumb.jsx';
 import AddSheet from '../components/AddSheet.jsx';
 import DocSheet from '../components/DocSheet.jsx';
 import PersonSheet from '../components/PersonSheet.jsx';
-import { plural } from './People.jsx';
+import { documentWord, pageWord } from '../lib/format.js';
 
 export default function Person() {
   const { id } = useParams();
@@ -62,7 +62,7 @@ export default function Person() {
           {person.name}
           <div className="topbar-sub">
             {person.relation ? `${person.relation} · ` : ''}
-            {docs.length === 0 ? 'нет документов' : `${docs.length} ${plural(docs.length)}`}
+            {docs.length === 0 ? 'нет документов' : `${docs.length} ${documentWord(docs.length)}`}
           </div>
         </div>
         <button className="icon-btn" onClick={() => setEditingPerson(true)} aria-label="Изменить">
@@ -99,7 +99,7 @@ export default function Person() {
                   <div className="doc-info">
                     <div className="doc-title">{doc.title}</div>
                     <div className="doc-meta">
-                      {doc.pages.length === 0 ? 'нет страниц' : `${doc.pages.length} ${pagePlural(doc.pages.length)}`}
+                      {doc.pages.length === 0 ? 'нет страниц' : `${doc.pages.length} ${pageWord(doc.pages.length)}`}
                       {doc.note ? ` · ${doc.note}` : ''}
                     </div>
                   </div>
@@ -155,13 +155,4 @@ function DocThumb({ doc }) {
       <Icon name="file" size={22} />
     </div>
   );
-}
-
-export function pagePlural(n) {
-  const last = n % 10;
-  const two = n % 100;
-  if (two >= 11 && two <= 14) return 'страниц';
-  if (last === 1) return 'страница';
-  if (last >= 2 && last <= 4) return 'страницы';
-  return 'страниц';
 }

@@ -80,6 +80,21 @@ export async function pickFiles() {
   return out;
 }
 
+/** Выбрать один ZIP-файл — резервную копию для восстановления. */
+export async function pickZipFile() {
+  if (!isNative()) {
+    const picked = await pickViaInput({ accept: '.zip,application/zip,application/x-zip-compressed' });
+    return picked[0] || null;
+  }
+
+  const { FilePicker } = await import('@capawesome/capacitor-file-picker');
+  const result = await FilePicker.pickFiles({ types: ['application/zip'], readData: true });
+  const file = result.files?.[0];
+  if (!file) return null;
+  const bytes = Uint8Array.from(atob(file.data), (c) => c.charCodeAt(0));
+  return { blob: new Blob([bytes], { type: 'application/zip' }), name: file.name, mime: 'application/zip' };
+}
+
 /** Выбрать одно или несколько фото из галереи. */
 export async function pickFromGallery() {
   if (!isNative()) {

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { hasPin, setPin, checkPin, nextDelayMs, canUseBiometric, unlockByBiometric } from '../lib/auth.js';
+import { hasPin, setPin, checkPin, nextDelayMs, canUseBiometric, unlockByBiometric, isBiometricEnabled } from '../lib/auth.js';
 import Icon from '../components/Icon.jsx';
 
 const PIN_LENGTH = 4;
@@ -27,7 +27,8 @@ export default function Lock({ onUnlock }) {
 
   useEffect(() => {
     hasPin().then((exists) => setMode(exists ? 'enter' : 'setup'));
-    canUseBiometric().then(setBiometricAvailable);
+    Promise.all([canUseBiometric(), isBiometricEnabled()])
+      .then(([available, enabled]) => setBiometricAvailable(available && enabled));
   }, []);
 
   // При входе (не при первой настройке PIN) сразу предлагаем отпечаток —

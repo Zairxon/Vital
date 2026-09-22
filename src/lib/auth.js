@@ -43,6 +43,22 @@ export async function clearPin() {
   await Preferences.remove({ key: PIN_HASH_KEY });
 }
 
+const SCREENSHOT_BLOCK_KEY = 'vital.blockScreenshots';
+
+/**
+ * Хранит только предпочтение. Сам FLAG_SECURE применяется нативным кодом
+ * при старте (задача 14, где появляется android/) — переключатель здесь
+ * готов заранее и просто ждёт, пока будет что переключать.
+ */
+export async function isScreenshotBlockEnabled() {
+  const { value } = await Preferences.get({ key: SCREENSHOT_BLOCK_KEY });
+  return value !== 'false'; // по умолчанию включено — документы приватные
+}
+
+export async function setScreenshotBlockEnabled(enabled) {
+  await Preferences.set({ key: SCREENSHOT_BLOCK_KEY, value: String(enabled) });
+}
+
 // ── Авто-блокировка при уходе в фон ─────────────────────────────────────
 
 const LOCK_AFTER_MS = 60_000;
@@ -67,6 +83,18 @@ export async function canUseBiometric() {
   } catch {
     return false; // плагин не работает в браузере — это ожидаемо, не ошибка
   }
+}
+
+const BIOMETRIC_PREF_KEY = 'vital.biometricEnabled';
+
+/** Хочет ли пользователь предлагать отпечаток — отдельно от того, есть ли он у телефона. */
+export async function isBiometricEnabled() {
+  const { value } = await Preferences.get({ key: BIOMETRIC_PREF_KEY });
+  return value !== 'false'; // по умолчанию включено, если сканер вообще есть
+}
+
+export async function setBiometricEnabled(enabled) {
+  await Preferences.set({ key: BIOMETRIC_PREF_KEY, value: String(enabled) });
 }
 
 export async function unlockByBiometric() {
