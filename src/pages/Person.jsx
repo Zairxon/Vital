@@ -48,6 +48,11 @@ export default function Person() {
         <button className="icon-btn" onClick={() => navigate('/')} aria-label="Назад">
           <Icon name="back" />
         </button>
+        <div className="avatar" style={{ width: 38, height: 38, fontSize: 'var(--text-base)' }}>
+          {person.avatarFileId
+            ? <Thumb fileId={person.avatarFileId} alt="" style={{ width: '100%', height: '100%' }} />
+            : (person.name[0] || '?').toUpperCase()}
+        </div>
         <div className="topbar-title">
           {person.name}
           <div className="topbar-sub">
