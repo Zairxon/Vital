@@ -1,16 +1,34 @@
-export default function App() {
-  return (
-    <div className="screen">
-      <div className="topbar">
-        <div className="topbar-title">Vital</div>
-      </div>
-      <div className="screen-body">
-        <div className="empty">
-          <div className="empty-icon">📁</div>
-          <div className="empty-title">Каркас готов</div>
-          <div className="empty-text">Экраны появятся в следующих задачах.</div>
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { DbProvider, useDb } from './state/DbContext.jsx';
+import People from './pages/People.jsx';
+
+function Routed() {
+  const { ready } = useDb();
+
+  if (!ready) {
+    return (
+      <div className="screen">
+        <div className="screen-body">
+          <div className="empty"><div className="empty-text">Загрузка…</div></div>
         </div>
       </div>
-    </div>
+    );
+  }
+
+  return (
+    <Routes>
+      <Route path="/" element={<People />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
+
+export default function App() {
+  return (
+    <DbProvider>
+      <HashRouter>
+        <Routed />
+      </HashRouter>
+    </DbProvider>
   );
 }
