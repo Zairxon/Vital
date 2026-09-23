@@ -246,39 +246,38 @@
 .avatar-actions { display: flex; gap: var(--space-2); flex-wrap: wrap; justify-content: center; }
 .btn-sm { min-height: 38px; padding: 0 var(--space-3); font-size: var(--text-sm); }
 
-/* ── Большое фото человека на его экране (вместо кнопки назад — жест) ── */
-.person-hero {
-  position: relative;
-  width: 100%;
-  height: 260px;
+/* ── Фото человека на его экране: в рамке, по центру (назад — жест) ── */
+.person-top {
+  display: flex;
+  justify-content: flex-end;
+  padding: calc(var(--space-3) + env(safe-area-inset-top)) var(--space-3) 0;
+}
+.person-hero-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-2) var(--space-6) var(--space-6);
+}
+.person-hero-frame {
+  width: 176px;
+  height: 220px;
   flex-shrink: 0;
-  background: var(--bg-card);
+  border-radius: var(--radius-xl);
   overflow: hidden;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 56px;
+  font-weight: var(--fw-bold);
+  color: var(--text-hint);
 }
 .person-hero-img { width: 100%; height: 100%; }
-.person-hero-scrim {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,.75) 100%);
-  pointer-events: none;
-}
-.person-hero-edit {
-  position: absolute;
-  top: calc(var(--space-3) + env(safe-area-inset-top));
-  right: var(--space-3);
-  background: rgba(0, 0, 0, .4);
-  color: #fff;
-  border-radius: var(--radius-full);
-}
-.person-hero-info {
-  position: absolute;
-  left: var(--space-4);
-  right: var(--space-4);
-  bottom: var(--space-4);
-  color: #fff;
-}
-.person-hero-name { font-size: var(--text-xl); font-weight: var(--fw-bold); }
-.person-hero-sub { font-size: var(--text-sm); opacity: .85; margin-top: 2px; }
+.person-hero-name { margin-top: var(--space-4); font-size: var(--text-xl); font-weight: var(--fw-bold); color: var(--text); }
+.person-hero-sub { font-size: var(--text-sm); color: var(--text-muted); margin-top: 2px; }
 
 /* ── Группы и карточки документов ── */
 .group-title {

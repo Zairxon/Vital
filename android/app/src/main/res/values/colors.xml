@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Переопределяет фиолетово-синие цвета по умолчанию из Capacitor —
+         иначе статус-бар и системный акцент красились в его indigo,
+         никак не связанный с темой самого приложения. -->
+    <color name="colorPrimary">#FFFFFF</color>
+    <color name="colorPrimaryDark">#F4F4F5</color>
+    <color name="colorAccent">#3A3A40</color>
+</resources>
