@@ -31,6 +31,7 @@ export default function DocSheet({ db, doc, picked = [], startWithConfirm = fals
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const [confirming, setConfirming] = useState(startWithConfirm);
+  const [pickingType, setPickingType] = useState(false);
 
   // Ссылки на превью освобождаются один раз при закрытии модалки: если
   // чистить их на каждое изменение pages, удаление одной страницы погасит
@@ -43,6 +44,9 @@ export default function DocSheet({ db, doc, picked = [], startWithConfirm = fals
 
   const types = useMemo(() => allTypes(db), [db]);
   const canSave = title.trim().length > 0 && (type !== NEW_TYPE || newType.trim().length > 0);
+  const typeLabel = type === NEW_TYPE
+    ? 'Свой тип…'
+    : (types.find((t) => t.id === type)?.label || 'Выберите тип');
 
   function removePage(index) {
     setPages((prev) => prev.filter((_, i) => i !== index));
@@ -113,6 +117,33 @@ export default function DocSheet({ db, doc, picked = [], startWithConfirm = fals
     );
   }
 
+  if (pickingType) {
+    return (
+      <Sheet title="Тип документа" onClose={() => setPickingType(false)}>
+        <div className="type-picker-list">
+          {types.map((t) => (
+            <button
+              key={t.id}
+              className={`type-picker-row ${type === t.id ? 'is-selected' : ''}`}
+              onClick={() => { setType(t.id); setPickingType(false); }}
+            >
+              <span className="type-picker-icon">{t.icon || '📁'}</span>
+              <span className="type-picker-label">{t.label}</span>
+              {type === t.id && <Icon name="chevron" size={16} style={{ color: 'var(--accent)', transform: 'rotate(90deg)' }} />}
+            </button>
+          ))}
+          <button
+            className={`type-picker-row ${type === NEW_TYPE ? 'is-selected' : ''}`}
+            onClick={() => { setType(NEW_TYPE); setPickingType(false); }}
+          >
+            <span className="type-picker-icon"><Icon name="plus" size={16} /></span>
+            <span className="type-picker-label">Свой тип…</span>
+          </button>
+        </div>
+      </Sheet>
+    );
+  }
+
   return (
     <Sheet title={doc ? 'Изменить документ' : 'Новый документ'} onClose={busy ? () => {} : onClose}>
       {pages.length > 0 && (
@@ -135,11 +166,16 @@ export default function DocSheet({ db, doc, picked = [], startWithConfirm = fals
       )}
 
       <div className="field">
-        <label htmlFor="doc-type">Тип документа</label>
-        <select id="doc-type" value={type} onChange={(e) => setType(e.target.value)}>
-          {types.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
-          <option value={NEW_TYPE}>Свой тип…</option>
-        </select>
+        <label htmlFor="doc-type-btn">Тип документа</label>
+        <button
+          id="doc-type-btn"
+          type="button"
+          className="type-picker-trigger"
+          onClick={() => setPickingType(true)}
+        >
+          <span>{typeLabel}</span>
+          <Icon name="chevron" size={16} style={{ color: 'var(--text-hint)', transform: 'rotate(90deg)' }} />
+        </button>
       </div>
 
       {type === NEW_TYPE && (

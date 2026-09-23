@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { registerBackHandler } from '../lib/backButton.js';
 
 /** Шторка снизу — единственный вид модалки в приложении. */
 export default function Sheet({ title, onClose, children }) {
@@ -7,6 +8,10 @@ export default function Sheet({ title, onClose, children }) {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
+
+  // Жест «назад» закрывает шторку, а не уводит с экрана целиком —
+  // одна регистрация здесь покрывает все шторки приложения разом.
+  useEffect(() => registerBackHandler(() => { onClose(); return true; }), [onClose]);
 
   return (
     <div className="overlay" onClick={onClose}>

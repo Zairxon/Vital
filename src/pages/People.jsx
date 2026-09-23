@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDb } from '../state/DbContext.jsx';
 import { peopleSorted, searchDocuments } from '../lib/search.js';
 import { documentsOf, typeLabel } from '../lib/model.js';
 import { PAGE_KINDS } from '../lib/constants.js';
+import { registerBackHandler } from '../lib/backButton.js';
 import Icon from '../components/Icon.jsx';
 import Thumb from '../components/Thumb.jsx';
 import PersonSheet from '../components/PersonSheet.jsx';
@@ -19,6 +20,13 @@ export default function People() {
   const people = peopleSorted(db);
   const searching = query.trim().length > 0;
   const results = searching ? searchDocuments(db, query) : [];
+
+  // Жест «назад» во время поиска закрывает поиск, а не выходит из
+  // приложения — регистрируем перехватчик, пока есть что закрывать.
+  useEffect(() => {
+    if (!searching) return;
+    return registerBackHandler(() => { setQuery(''); return true; });
+  }, [searching]);
 
   return (
     <div className="screen">

@@ -47,28 +47,37 @@ export default function Person() {
     }
   }
 
+  const metaText = `${person.relation ? `${person.relation} · ` : ''}${
+    docs.length === 0 ? 'нет документов' : `${docs.length} ${documentWord(docs.length)}`
+  }`;
+
+  // Кнопки «назад» здесь нет нарочно — с этого экрана уходят только жестом
+  // (или системной кнопкой назад), это ловит BackButtonRouter в App.jsx.
   return (
     <div className="screen">
-      <div className="topbar">
-        <button className="icon-btn" onClick={() => navigate('/')} aria-label="Назад">
-          <Icon name="back" />
-        </button>
-        <div className="avatar" style={{ width: 38, height: 38, fontSize: 'var(--text-base)' }}>
-          {person.avatarFileId
-            ? <Thumb fileId={person.avatarFileId} alt="" style={{ width: '100%', height: '100%' }} />
-            : (person.name[0] || '?').toUpperCase()}
-        </div>
-        <div className="topbar-title">
-          {person.name}
-          <div className="topbar-sub">
-            {person.relation ? `${person.relation} · ` : ''}
-            {docs.length === 0 ? 'нет документов' : `${docs.length} ${documentWord(docs.length)}`}
+      {person.avatarFileId ? (
+        <div className="person-hero">
+          <Thumb fileId={person.avatarFileId} alt="" className="person-hero-img" fallbackIcon="image" />
+          <div className="person-hero-scrim" />
+          <button className="icon-btn person-hero-edit" onClick={() => setEditingPerson(true)} aria-label="Изменить">
+            <Icon name="edit" size={20} />
+          </button>
+          <div className="person-hero-info">
+            <div className="person-hero-name">{person.name}</div>
+            <div className="person-hero-sub">{metaText}</div>
           </div>
         </div>
-        <button className="icon-btn" onClick={() => setEditingPerson(true)} aria-label="Изменить">
-          <Icon name="edit" size={20} />
-        </button>
-      </div>
+      ) : (
+        <div className="topbar">
+          <div className="topbar-title">
+            {person.name}
+            <div className="topbar-sub">{metaText}</div>
+          </div>
+          <button className="icon-btn" onClick={() => setEditingPerson(true)} aria-label="Изменить">
+            <Icon name="edit" size={20} />
+          </button>
+        </div>
+      )}
 
       {error && (
         <div className="banner">

@@ -104,6 +104,47 @@
 }
 .toggle.is-on .toggle-knob { transform: translateX(18px); }
 
+/* ── Позиционирование фото аватара ── */
+.cropper-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+}
+.cropper-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(var(--space-3) + env(safe-area-inset-top)) var(--space-4) var(--space-3);
+  font-size: var(--text-sm);
+}
+.cropper-stage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cropper-frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-full);
+  box-shadow: 0 0 0 2000px rgba(0, 0, 0, .6);
+  touch-action: none;
+  cursor: grab;
+}
+.cropper-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6) calc(var(--space-6) + env(safe-area-inset-bottom));
+}
+.cropper-controls input[type="range"] {
+  flex: 1;
+  accent-color: var(--accent);
+}
+
 /* ── Экран блокировки ── */
 .lock-screen { justify-content: center; }
 .lock-body {
@@ -205,6 +246,40 @@
 .avatar-actions { display: flex; gap: var(--space-2); flex-wrap: wrap; justify-content: center; }
 .btn-sm { min-height: 38px; padding: 0 var(--space-3); font-size: var(--text-sm); }
 
+/* ── Большое фото человека на его экране (вместо кнопки назад — жест) ── */
+.person-hero {
+  position: relative;
+  width: 100%;
+  height: 260px;
+  flex-shrink: 0;
+  background: var(--bg-card);
+  overflow: hidden;
+}
+.person-hero-img { width: 100%; height: 100%; }
+.person-hero-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(0,0,0,.75) 100%);
+  pointer-events: none;
+}
+.person-hero-edit {
+  position: absolute;
+  top: calc(var(--space-3) + env(safe-area-inset-top));
+  right: var(--space-3);
+  background: rgba(0, 0, 0, .4);
+  color: #fff;
+  border-radius: var(--radius-full);
+}
+.person-hero-info {
+  position: absolute;
+  left: var(--space-4);
+  right: var(--space-4);
+  bottom: var(--space-4);
+  color: #fff;
+}
+.person-hero-name { font-size: var(--text-xl); font-weight: var(--fw-bold); }
+.person-hero-sub { font-size: var(--text-sm); opacity: .85; margin-top: 2px; }
+
 /* ── Группы и карточки документов ── */
 .group-title {
   display: flex;
@@ -291,6 +366,38 @@
 }
 .source-label { font-size: var(--text-base); font-weight: var(--fw-medium); }
 .source-hint { font-size: var(--text-xs); color: var(--text-muted); }
+
+/* ── Тематический выбор типа документа (вместо системного <select>) ── */
+.type-picker-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  color: var(--text);
+  font-size: var(--text-base);
+  text-align: left;
+}
+.type-picker-trigger:active { border-color: var(--accent); }
+.type-picker-list { max-height: 60vh; overflow-y: auto; margin: 0 calc(var(--space-5) * -1); padding: 0 var(--space-2); }
+.type-picker-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3) var(--space-3);
+  border-radius: var(--radius-md);
+  text-align: left;
+  color: var(--text);
+}
+.type-picker-row:active { background: var(--bg-card); }
+.type-picker-row.is-selected { background: var(--accent-glow); color: var(--accent); }
+.type-picker-icon { width: 24px; text-align: center; font-size: 16px; flex-shrink: 0; color: var(--text-muted); }
+.type-picker-row.is-selected .type-picker-icon { color: var(--accent); }
+.type-picker-label { flex: 1; font-size: var(--text-base); }
 
 /* ── Страницы в модалке документа ── */
 .page-grid { display: flex; gap: var(--space-2); flex-wrap: wrap; margin-bottom: var(--space-4); }

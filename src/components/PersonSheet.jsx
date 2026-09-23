@@ -2,11 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import Sheet, { Confirm } from './Sheet.jsx';
 import Icon from './Icon.jsx';
 import Thumb from './Thumb.jsx';
+import AvatarCropper from './AvatarCropper.jsx';
 import { saveBlob, deleteBlob } from '../lib/files.js';
-import { makeThumbnail } from '../lib/image.js';
 import { pickFromGallery, takePhoto } from '../lib/pick.js';
-
-const AVATAR_SIZE = 320;
 
 /**
  * Добавление и редактирование человека вместе с его мини-фото.
@@ -17,7 +15,8 @@ export default function PersonSheet({ person, docCount = 0, onSave, onRemove, on
   const [name, setName] = useState(person?.name || '');
   const [relation, setRelation] = useState(person?.relation || '');
   const [avatarFileId, setAvatarFileId] = useState(person?.avatarFileId || null);
-  const [draft, setDraft] = useState(null); // { blob, previewUrl } — новое фото
+  const [draft, setDraft] = useState(null); // { blob, previewUrl } — новое фото (уже кадрированное)
+  const [cropping, setCropping] = useState(null); // сырой Blob, ждёт позиционирования
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const [confirming, setConfirming] = useState(false);
@@ -36,8 +35,7 @@ export default function PersonSheet({ person, docCount = 0, onSave, onRemove, on
       const picked = source === 'camera' ? await takePhoto() : await pickFromGallery();
       const first = picked[0];
       if (!first) return;
-      if (draft?.previewUrl) URL.revokeObjectURL(draft.previewUrl);
-      setDraft({ blob: first.blob, previewUrl: URL.createObjectURL(first.blob) });
+      setCropping(first.blob);
     } catch (e) {
       setError(
         String(e?.message || '').toLowerCase().includes('permission')
@@ -59,10 +57,10 @@ export default function PersonSheet({ person, docCount = 0, onSave, onRemove, on
     try {
       let nextAvatar = avatarFileId;
 
+      // Кроппер уже отдаёт готовый квадрат 480×480 с нужным кадрированием —
+      // здесь просто записываем его на диск.
       if (draft) {
-        // Мини-фото показывается кружком 52 px — хранить полный снимок незачем.
-        const small = await makeThumbnail(draft.blob, AVATAR_SIZE);
-        nextAvatar = await saveBlob(small, 'jpg');
+        nextAvatar = await saveBlob(draft.blob, 'jpg');
       }
 
       onSave({ name: name.trim(), relation: relation.trim(), avatarFileId: nextAvatar });
@@ -76,6 +74,20 @@ export default function PersonSheet({ person, docCount = 0, onSave, onRemove, on
       setError('Не удалось сохранить фото. Возможно, не хватает места в телефоне.');
       setBusy(false);
     }
+  }
+
+  if (cropping) {
+    return (
+      <AvatarCropper
+        blob={cropping}
+        onCancel={() => setCropping(null)}
+        onConfirm={(croppedBlob) => {
+          if (draft?.previewUrl) URL.revokeObjectURL(draft.previewUrl);
+          setDraft({ blob: croppedBlob, previewUrl: URL.createObjectURL(croppedBlob) });
+          setCropping(null);
+        }}
+      />
+    );
   }
 
   if (confirming) {
