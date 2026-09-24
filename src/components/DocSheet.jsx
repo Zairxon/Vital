@@ -24,6 +24,7 @@ export default function DocSheet({ db, doc, picked = [], startWithConfirm = fals
   const [type, setType] = useState(doc?.type || 'passport');
   const [newType, setNewType] = useState('');
   const [note, setNote] = useState(doc?.note || '');
+  const [expiryDate, setExpiryDate] = useState(doc?.expiryDate || '');
   const [pages, setPages] = useState(() => [
     ...(doc?.pages || []).map((p) => ({ kind: 'saved', page: p })),
     ...picked.map((p) => ({ kind: 'fresh', ...p, previewUrl: URL.createObjectURL(p.blob) })),
@@ -90,7 +91,10 @@ export default function DocSheet({ db, doc, picked = [], startWithConfirm = fals
         .flatMap((p) => [p.fileId, p.thumbId])
         .filter((id) => id && !keptIds.has(id));
 
-      const data = { type: typeId, title: title.trim(), note: note.trim(), pages: finalPages };
+      const data = {
+        type: typeId, title: title.trim(), note: note.trim(),
+        expiryDate: expiryDate || null, pages: finalPages,
+      };
       if (doc) onUpdate(doc.id, data);
       else onCreate(data);
 
@@ -196,6 +200,30 @@ export default function DocSheet({ db, doc, picked = [], startWithConfirm = fals
         <label htmlFor="doc-note">Заметка</label>
         <input id="doc-note" value={note} placeholder="Необязательно"
           onChange={(e) => setNote(e.target.value)} />
+      </div>
+
+      <div className="field">
+        <label htmlFor="doc-expiry">Срок действия</label>
+        <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+          <input
+            id="doc-expiry"
+            type="date"
+            value={expiryDate}
+            onChange={(e) => setExpiryDate(e.target.value)}
+            style={{ flex: 1 }}
+          />
+          {expiryDate && (
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              onClick={() => setExpiryDate('')}
+              aria-label="Убрать срок действия"
+            >
+              <Icon name="close" size={16} />
+            </button>
+          )}
+        </div>
+        <div className="field-hint">Необязательно. Напомним за 10 дней до истечения.</div>
       </div>
 
       {error && (

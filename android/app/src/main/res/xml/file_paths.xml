@@ -2,4 +2,8 @@
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
     <external-path name="my_images" path="." />
     <cache-path name="my_cache_images" path="." />
+    <!-- Документы Vital лежат в приватной Directory.Data (getFilesDir()) —
+         без этой строки FileProvider не находит их и «Поделиться»
+         передаёт другим приложениям только текст (заголовок), без файла. -->
+    <files-path name="vital_files" path="." />
 </paths>

@@ -45,7 +45,7 @@ export async function takePhoto() {
   }
   const { Camera, CameraResultType, CameraSource } = await camera();
   const photo = await Camera.getPhoto({
-    quality: 85,
+    quality: 100, // без сжатия — документ должен остаться читаемым при увеличении
     allowEditing: false,
     resultType: CameraResultType.Uri,
     source: CameraSource.Camera,
@@ -95,17 +95,25 @@ export async function pickZipFile() {
   return { blob: new Blob([bytes], { type: 'application/zip' }), name: file.name, mime: 'application/zip' };
 }
 
-/** Выбрать одно или несколько фото из галереи. */
+/**
+ * Выбрать одно или несколько фото из галереи. Раньше использовался
+ * `Camera.pickImages`, но тот плагин перекодирует каждое фото под заданное
+ * качество — оригинал терялся. `FilePicker.pickImages` открывает тот же
+ * системный выбор фото, но отдаёт исходные байты файла без перекодирования.
+ */
 export async function pickFromGallery() {
   if (!isNative()) {
     return pickViaInput({ accept: 'image/*', multiple: true });
   }
-  const { Camera } = await camera();
-  const result = await Camera.pickImages({ quality: 85 });
+
+  const { FilePicker } = await import('@capawesome/capacitor-file-picker');
+  const result = await FilePicker.pickImages({ multiple: true, readData: true });
+
   const out = [];
-  for (const photo of result.photos || []) {
-    const blob = await webPathToBlob(photo.webPath);
-    out.push({ blob, name: `photo.${photo.format || 'jpg'}`, mime: blob.type || 'image/jpeg' });
+  for (const file of result.files || []) {
+    const bytes = Uint8Array.from(atob(file.data), (c) => c.charCodeAt(0));
+    const mime = file.mimeType || 'image/jpeg';
+    out.push({ blob: new Blob([bytes], { type: mime }), name: file.name || 'photo.jpg', mime });
   }
   return out;
 }

@@ -10,6 +10,7 @@ import Thumb from '../components/Thumb.jsx';
 import AddSheet from '../components/AddSheet.jsx';
 import DocSheet from '../components/DocSheet.jsx';
 import PersonSheet from '../components/PersonSheet.jsx';
+import ExpiryBadge from '../components/ExpiryBadge.jsx';
 import { documentWord, pageWord } from '../lib/format.js';
 
 export default function Person() {
@@ -103,6 +104,7 @@ export default function Person() {
                       {doc.pages.length === 0 ? 'нет страниц' : `${doc.pages.length} ${pageWord(doc.pages.length)}`}
                       {doc.note ? ` · ${doc.note}` : ''}
                     </div>
+                    <ExpiryBadge expiryDate={doc.expiryDate} />
                   </div>
                   {doc.pinned && <Icon name="star" size={16} filled style={{ color: 'var(--accent)' }} />}
                 </button>

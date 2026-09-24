@@ -5,6 +5,7 @@ import { peopleSorted, searchDocuments } from '../lib/search.js';
 import { documentsOf, typeLabel } from '../lib/model.js';
 import { PAGE_KINDS } from '../lib/constants.js';
 import { registerBackHandler } from '../lib/backButton.js';
+import { expiringDocuments, expiryLabel } from '../lib/expiry.js';
 import Icon from '../components/Icon.jsx';
 import Thumb from '../components/Thumb.jsx';
 import PersonSheet from '../components/PersonSheet.jsx';
@@ -20,6 +21,7 @@ export default function People() {
   const people = peopleSorted(db);
   const searching = query.trim().length > 0;
   const results = searching ? searchDocuments(db, query) : [];
+  const expiring = expiringDocuments(db);
 
   // Жест «назад» во время поиска закрывает поиск, а не выходит из
   // приложения — регистрируем перехватчик, пока есть что закрывать.
@@ -52,6 +54,25 @@ export default function People() {
         <div className="banner">
           <span style={{ flex: 1 }}>{warning}</span>
           <button onClick={actions.dismissWarning} aria-label="Скрыть"><Icon name="close" size={16} /></button>
+        </div>
+      )}
+
+      {!searching && expiring.length > 0 && (
+        <div className="expiry-notice">
+          <div className="expiry-notice-title">
+            <Icon name="warning" size={16} />
+            Истекают документы ({expiring.length})
+          </div>
+          {expiring.slice(0, 3).map(({ doc, person, days }) => (
+            <button key={doc.id} className="expiry-notice-row" onClick={() => navigate(`/doc/${doc.id}`)}>
+              <span className="expiry-notice-name">
+                {doc.title}{person ? ` · ${person.name}` : ''}
+              </span>
+              <span style={{ color: days < 0 ? 'var(--danger)' : 'var(--warning)', flexShrink: 0 }}>
+                {expiryLabel(doc.expiryDate)}
+              </span>
+            </button>
+          ))}
         </div>
       )}
 

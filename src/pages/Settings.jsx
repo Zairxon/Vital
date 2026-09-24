@@ -131,7 +131,7 @@ export default function Settings() {
 
           <div className="settings-row">
             <Icon name="image" size={18} style={{ color: 'var(--text-muted)' }} />
-            <span>
+            <span className="settings-row-text">
               <span className="settings-row-label" style={{ display: 'block' }}>Запрет скриншотов</span>
               <span className="settings-row-hint">Документы не попадут в снимки экрана</span>
             </span>

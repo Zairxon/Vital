@@ -7,6 +7,7 @@ import Icon from '../components/Icon.jsx';
 import ZoomImage from '../components/ZoomImage.jsx';
 import DocSheet from '../components/DocSheet.jsx';
 import Sheet from '../components/Sheet.jsx';
+import ExpiryBadge from '../components/ExpiryBadge.jsx';
 
 export default function Viewer() {
   const { id } = useParams();
@@ -80,6 +81,7 @@ export default function Viewer() {
         <div className="viewer-counter">
           {doc.title}
           {total > 1 && <div style={{ opacity: .7, fontSize: 'var(--text-xs)' }}>{index + 1} / {total}</div>}
+          <ExpiryBadge expiryDate={doc.expiryDate} style={{ textAlign: 'center' }} />
         </div>
         <button
           className={`icon-btn ${doc.pinned ? 'is-active' : ''}`}

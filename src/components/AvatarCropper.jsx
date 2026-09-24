@@ -12,7 +12,10 @@ const OUTPUT = 480; // сторона итогового квадрата, px
  */
 export default function AvatarCropper({ blob, onConfirm, onCancel }) {
   const [img, setImg] = useState(null);
-  const [zoom, setZoom] = useState(1);
+  // Зум 1.0 — это ровно «cover»: одна из сторон всегда впритык к рамке,
+  // и вдоль неё перетаскивать некуда (свободный ход только по другой оси).
+  // Небольшой запас сразу даёт возможность двигать в обе стороны.
+  const [zoom, setZoom] = useState(1.2);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const dragRef = useRef(null);
 

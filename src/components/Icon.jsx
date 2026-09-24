@@ -16,6 +16,7 @@ const PATHS = {
   chevron: 'M9 18l6-6-6-6',
   lock: 'M5 11h14v10H5z M8 11V7a4 4 0 0 1 8 0v4',
   fingerprint: 'M12 2a9 9 0 0 0-9 9c0 3.5 1.5 6 3 8 M12 2a9 9 0 0 1 9 9c0 2-.5 4-1.5 5.5 M12 6a5 5 0 0 0-5 5c0 3 1 5.5 3 7.5 M12 6a5 5 0 0 1 5 5c0 1.5-.3 3-1 4.3 M12 10a1 1 0 0 0-1 1c0 2 .7 3.8 2 5',
+  warning: 'M12 3L2 20h20L12 3z M12 9v5 M12 17h.01',
 };
 
 export default function Icon({ name, size = 22, filled = false, style }) {
