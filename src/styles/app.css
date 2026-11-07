@@ -513,3 +513,36 @@
 }
 .viewer-note { text-align: center; font-size: var(--text-sm); color: #fff; padding: 0 var(--space-4) var(--space-2); }
 .viewer-note .copy-token { color: #F2C9B4; }
+
+/* Заметки документа */
+.note-row { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); }
+.note-row input { flex: 1; }
+
+/* Поле выбора даты (вместо системного) */
+.date-field {
+  flex: 1;
+  min-height: 48px;
+  padding: 0 var(--space-4);
+  text-align: left;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text);
+}
+.date-placeholder { color: var(--text-hint); }
+
+/* Календарь */
+.cal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-3); }
+.cal-title { font-weight: var(--fw-semibold); font-size: var(--text-md); }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: var(--space-4); }
+.cal-wd { text-align: center; font-size: var(--text-xs); color: var(--text-hint); padding: var(--space-1) 0; }
+.cal-day {
+  aspect-ratio: 1;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--text);
+  font-size: var(--text-sm);
+}
+.cal-day:active { background: var(--bg-elevated); }
+.cal-day.is-today { border: 1px solid var(--accent); }
+.cal-day.is-selected { background: var(--accent); color: var(--text-on-accent); }

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Sheet, { Confirm } from './Sheet.jsx';
 import Icon from './Icon.jsx';
 import Thumb from './Thumb.jsx';
+import DatePicker, { formatIsoDate } from './DatePicker.jsx';
 import { saveBlob, deleteBlobs, extFor, formatBytes } from '../lib/files.js';
 import { makeThumbnail } from '../lib/image.js';
 import { allTypes } from '../lib/model.js';
@@ -23,7 +24,10 @@ export default function DocSheet({ db, doc, picked = [], startWithConfirm = fals
   const [title, setTitle] = useState(doc?.title || '');
   const [type, setType] = useState(doc?.type || 'passport');
   const [newType, setNewType] = useState('');
-  const [note, setNote] = useState(doc?.note || '');
+  const [notes, setNotes] = useState(() => {
+    const lines = (doc?.note || '').split('\n').filter((l) => l.trim());
+    return lines.length ? lines : [''];
+  });
   const [expiryDate, setExpiryDate] = useState(doc?.expiryDate || '');
   const [pages, setPages] = useState(() => [
     ...(doc?.pages || []).map((p) => ({ kind: 'saved', page: p })),
@@ -33,6 +37,7 @@ export default function DocSheet({ db, doc, picked = [], startWithConfirm = fals
   const [error, setError] = useState(null);
   const [confirming, setConfirming] = useState(startWithConfirm);
   const [pickingType, setPickingType] = useState(false);
+  const [pickingDate, setPickingDate] = useState(false);
 
   // Ссылки на превью освобождаются один раз при закрытии модалки: если
   // чистить их на каждое изменение pages, удаление одной страницы погасит
@@ -92,7 +97,7 @@ export default function DocSheet({ db, doc, picked = [], startWithConfirm = fals
         .filter((id) => id && !keptIds.has(id));
 
       const data = {
-        type: typeId, title: title.trim(), note: note.trim(),
+        type: typeId, title: title.trim(), note: notes.map((n) => n.trim()).filter(Boolean).join('\n'),
         expiryDate: expiryDate || null, pages: finalPages,
       };
       if (doc) onUpdate(doc.id, data);
@@ -117,6 +122,16 @@ export default function DocSheet({ db, doc, picked = [], startWithConfirm = fals
         text={`«${doc.title}» и все его страницы (${doc.pages.length}) будут стёрты без возможности восстановить.`}
         onConfirm={onRemove}
         onClose={onClose}
+      />
+    );
+  }
+
+  if (pickingDate) {
+    return (
+      <DatePicker
+        value={expiryDate}
+        onPick={(iso) => { setExpiryDate(iso); setPickingDate(false); }}
+        onClose={() => setPickingDate(false)}
       />
     );
   }
@@ -197,23 +212,39 @@ export default function DocSheet({ db, doc, picked = [], startWithConfirm = fals
       </div>
 
       <div className="field">
-        <label htmlFor="doc-note">Заметки</label>
-        <textarea id="doc-note" rows={3} value={note} placeholder="Например: ЖШШИР 12345678901234"
-          style={{ resize: 'vertical' }}
-          onChange={(e) => setNote(e.target.value)} />
-        <div className="field-hint">Каждая заметка — с новой строки: номер паспорта, ЖШШИР и другое.</div>
+        <label htmlFor="doc-note-0">Заметки</label>
+        {notes.map((n, i) => (
+          <div key={i} className="note-row">
+            <input id={`doc-note-${i}`} value={n}
+              placeholder={i === 0 ? 'Например: ЖШШИР 12345678901234' : 'Например: Паспорт AA1234567'}
+              onChange={(e) => setNotes((prev) => prev.map((x, j) => (j === i ? e.target.value : x)))} />
+            {(notes.length > 1 || n) && (
+              <button type="button" className="icon-btn" aria-label="Убрать заметку"
+                onClick={() => setNotes((prev) => (prev.length > 1 ? prev.filter((_, j) => j !== i) : ['']))}>
+                <Icon name="close" size={18} />
+              </button>
+            )}
+          </div>
+        ))}
+        <button type="button" className="btn btn-ghost btn-block"
+          onClick={() => setNotes((prev) => [...prev, ''])}>
+          <Icon name="plus" size={16} />
+          Добавить заметку
+        </button>
+        <div className="field-hint">Номер паспорта, ЖШШИР и другое — нажатием на номер он копируется.</div>
       </div>
 
       <div className="field">
         <label htmlFor="doc-expiry">Срок действия</label>
         <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-          <input
+          <button
             id="doc-expiry"
-            type="date"
-            value={expiryDate}
-            onChange={(e) => setExpiryDate(e.target.value)}
-            style={{ flex: 1 }}
-          />
+            type="button"
+            className="date-field"
+            onClick={() => setPickingDate(true)}
+          >
+            {expiryDate ? formatIsoDate(expiryDate) : <span className="date-placeholder">Выбрать дату</span>}
+          </button>
           {expiryDate && (
             <button
               type="button"
