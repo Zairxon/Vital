@@ -103,7 +103,7 @@ export default function Person() {
                     <div className="doc-title">{doc.title}</div>
                     <div className="doc-meta">
                       {doc.pages.length === 0 ? 'нет страниц' : `${doc.pages.length} ${pageWord(doc.pages.length)}`}
-                      {doc.note && <> · <CopyText text={doc.note} /></>}
+                      {doc.note && <> · <CopyText text={doc.note.split('\n').filter(Boolean).join(' · ')} /></>}
                     </div>
                     <ExpiryBadge expiryDate={doc.expiryDate} />
                   </div>

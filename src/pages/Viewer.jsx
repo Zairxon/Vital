@@ -94,7 +94,7 @@ export default function Viewer() {
         </button>
       </div>
 
-      {doc.note && <div className="viewer-note"><CopyText text={doc.note} /></div>}
+      {doc.note && <div className="viewer-note">{doc.note.split('\n').filter(Boolean).map((line, i) => <div key={i}><CopyText text={line} /></div>)}</div>}
 
       <div className="viewer-stage">
         {!page ? (

@@ -197,9 +197,11 @@ export default function DocSheet({ db, doc, picked = [], startWithConfirm = fals
       </div>
 
       <div className="field">
-        <label htmlFor="doc-note">Заметка</label>
-        <input id="doc-note" value={note} placeholder="Необязательно"
+        <label htmlFor="doc-note">Заметки</label>
+        <textarea id="doc-note" rows={3} value={note} placeholder="Например: ЖШШИР 12345678901234"
+          style={{ resize: 'vertical' }}
           onChange={(e) => setNote(e.target.value)} />
+        <div className="field-hint">Каждая заметка — с новой строки: номер паспорта, ЖШШИР и другое.</div>
       </div>
 
       <div className="field">
