@@ -6,6 +6,7 @@ import { documentsOf, typeLabel } from '../lib/model.js';
 import { PAGE_KINDS } from '../lib/constants.js';
 import { registerBackHandler } from '../lib/backButton.js';
 import { expiringDocuments, expiryLabel } from '../lib/expiry.js';
+import UpdateBanner from "../components/UpdateBanner.jsx";
 import Icon from '../components/Icon.jsx';
 import Thumb from '../components/Thumb.jsx';
 import PersonSheet from '../components/PersonSheet.jsx';
@@ -49,6 +50,8 @@ export default function People() {
           </button>
         )}
       </div>
+
+      <UpdateBanner />
 
       {warning && (
         <div className="banner">

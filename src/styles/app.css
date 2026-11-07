@@ -546,3 +546,6 @@
 .cal-day:active { background: var(--bg-elevated); }
 .cal-day.is-today { border: 1px solid var(--accent); }
 .cal-day.is-selected { background: var(--accent); color: var(--text-on-accent); }
+
+/* Плашка «Есть обновление» */
+.update-banner { background: var(--bg-card); border-color: var(--accent); font-size: var(--text-sm); }

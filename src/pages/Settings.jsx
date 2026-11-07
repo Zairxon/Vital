@@ -9,14 +9,23 @@ import { storageStats, formatBytes, shareBlob } from '../lib/files.js';
 import { exportZip, importZip } from '../lib/backup.js';
 import { pickZipFile } from '../lib/pick.js';
 import { fileWord } from '../lib/format.js';
+import { useI18n } from '../lib/i18n.jsx';
+import { LANGS } from '../lib/strings.js';
+import { APP_VERSION } from '../lib/version.js';
+import { useUpdate } from '../lib/useUpdate.js';
+import UpdateBanner from '../components/UpdateBanner.jsx';
 import Icon from '../components/Icon.jsx';
 import Toggle from '../components/Toggle.jsx';
 import ChangePinSheet from '../components/ChangePinSheet.jsx';
-import { Confirm } from '../components/Sheet.jsx';
+import Sheet, { Confirm } from '../components/Sheet.jsx';
 
 export default function Settings() {
   const navigate = useNavigate();
   const { reload } = useDb();
+  const { t, lang, setLang } = useI18n();
+  const { update, checking, recheck } = useUpdate();
+  const [pickingLang, setPickingLang] = useState(false);
+  const [checkedOnce, setCheckedOnce] = useState(false);
 
   const [biometricSupported, setBiometricSupported] = useState(false);
   const [biometricOn, setBiometricOn] = useState(true);
@@ -93,13 +102,14 @@ export default function Settings() {
   return (
     <div className="screen">
       <div className="topbar">
-        <button className="icon-btn" onClick={() => navigate(-1)} aria-label="Назад">
+        <button className="icon-btn" onClick={() => navigate(-1)} aria-label={t('back')}>
           <Icon name="back" />
         </button>
-        <div className="topbar-title">Настройки</div>
+        <div className="topbar-title">{t('settings')}</div>
       </div>
 
       <div className="screen-body">
+        <UpdateBanner />
         {error && (
           <div className="banner">
             <span style={{ flex: 1 }}>{error}</span>
@@ -108,23 +118,23 @@ export default function Settings() {
         )}
         {pinChanged && (
           <div className="banner" style={{ background: 'rgba(107,111,60,.2)', borderColor: 'var(--success)' }}>
-            <span style={{ flex: 1 }}>PIN изменён.</span>
-            <button onClick={() => setPinChanged(false)} aria-label="Скрыть"><Icon name="close" size={16} /></button>
+            <span style={{ flex: 1 }}>{t('pinChanged')}</span>
+            <button onClick={() => setPinChanged(false)} aria-label={t('hide')}><Icon name="close" size={16} /></button>
           </div>
         )}
 
-        <div className="group-title" style={{ marginTop: 0 }}>Защита</div>
+        <div className="group-title" style={{ marginTop: 0 }}>{t('protection')}</div>
         <div className="settings-section">
           <button className="settings-row" onClick={() => setChangingPin(true)}>
             <Icon name="lock" size={18} style={{ color: 'var(--text-muted)' }} />
-            <span className="settings-row-label">Сменить PIN</span>
+            <span className="settings-row-label">{t('changePin')}</span>
             <Icon name="chevron" size={18} style={{ color: 'var(--text-hint)' }} />
           </button>
 
           {biometricSupported && (
             <div className="settings-row">
               <Icon name="fingerprint" size={18} style={{ color: 'var(--text-muted)' }} />
-              <span className="settings-row-label">Вход по отпечатку</span>
+              <span className="settings-row-label">{t('fingerprint')}</span>
               <Toggle checked={biometricOn} onChange={toggleBiometric} />
             </div>
           )}
@@ -132,33 +142,69 @@ export default function Settings() {
           <div className="settings-row">
             <Icon name="image" size={18} style={{ color: 'var(--text-muted)' }} />
             <span className="settings-row-text">
-              <span className="settings-row-label" style={{ display: 'block' }}>Запрет скриншотов</span>
-              <span className="settings-row-hint">Документы не попадут в снимки экрана</span>
+              <span className="settings-row-label" style={{ display: 'block' }}>{t('noScreenshots')}</span>
+              <span className="settings-row-hint">{t('noScreenshotsHint')}</span>
             </span>
             <Toggle checked={screenshotBlockOn} onChange={toggleScreenshotBlock} />
           </div>
         </div>
 
-        <div className="group-title">Резервная копия</div>
+        <div className="group-title">{t('language')}</div>
+        <div className="settings-section">
+          <button className="settings-row" onClick={() => setPickingLang(true)}>
+            <Icon name="settings" size={18} style={{ color: 'var(--text-muted)' }} />
+            <span className="settings-row-label">{LANGS.find((l) => l.id === lang)?.label}</span>
+            <Icon name="chevron" size={18} style={{ color: 'var(--text-hint)' }} />
+          </button>
+        </div>
+
+        <div className="group-title">{t('backup')}</div>
         <div className="settings-section">
           <button className="settings-row" onClick={doExport} disabled={exporting}>
             <Icon name="share" size={18} style={{ color: 'var(--text-muted)' }} />
             <span className="settings-row-label">
-              {exporting ? 'Готовлю архив…' : 'Экспорт всего в ZIP'}
+              {exporting ? t('preparing') : t('exportZip')}
             </span>
           </button>
           <button className="settings-row" onClick={pickForImport} disabled={importing}>
             <Icon name="file" size={18} style={{ color: 'var(--text-muted)' }} />
             <span className="settings-row-label">
-              {importing ? 'Восстанавливаю…' : 'Импорт из ZIP'}
+              {importing ? t('restoring') : t('importZip')}
             </span>
           </button>
         </div>
 
+        <div className="group-title">{t('about')}</div>
+        <div className="settings-section">
+          <div className="settings-row">
+            <span className="settings-row-label">{t('version')}</span>
+            <span style={{ color: 'var(--text-muted)' }}>{APP_VERSION}</span>
+          </div>
+          <button className="settings-row" disabled={checking}
+            onClick={async () => { await recheck(); setCheckedOnce(true); }}>
+            <span className="settings-row-label">{checking ? t('checking') : t('checkUpdate')}</span>
+          </button>
+          {checkedOnce && !checking && !update && (
+            <div className="settings-row"><span className="settings-row-hint">{t('upToDate')}</span></div>
+          )}
+        </div>
+
         <div className="settings-footer">
-          Занято на диске: {formatBytes(stats.bytes)} ({stats.count} {fileWord(stats.count)})
+          {t('diskUsed')}: {formatBytes(stats.bytes)} ({stats.count} {t('filesWord') || fileWord(stats.count)})
         </div>
       </div>
+
+      {pickingLang && (
+        <Sheet title={t('language')} onClose={() => setPickingLang(false)}>
+          {LANGS.map((l) => (
+            <button key={l.id} className="source-item"
+              onClick={() => { setLang(l.id); setPickingLang(false); }}>
+              <span className="source-label" style={{ flex: 1 }}>{l.label}</span>
+              {l.id === lang && <Icon name="star" size={16} filled style={{ color: 'var(--accent)' }} />}
+            </button>
+          ))}
+        </Sheet>
+      )}
 
       {changingPin && (
         <ChangePinSheet onClose={(saved) => { setChangingPin(false); if (saved) setPinChanged(true); }} />
