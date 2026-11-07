@@ -5,6 +5,7 @@ import { documentsOf } from '../lib/model.js';
 import { groupByType } from '../lib/search.js';
 import { takePhoto, pickFromGallery, pickFiles } from '../lib/pick.js';
 import { PAGE_KINDS } from '../lib/constants.js';
+import CopyText from '../components/CopyText.jsx';
 import Icon from '../components/Icon.jsx';
 import Thumb from '../components/Thumb.jsx';
 import AddSheet from '../components/AddSheet.jsx';
@@ -102,7 +103,7 @@ export default function Person() {
                     <div className="doc-title">{doc.title}</div>
                     <div className="doc-meta">
                       {doc.pages.length === 0 ? 'нет страниц' : `${doc.pages.length} ${pageWord(doc.pages.length)}`}
-                      {doc.note ? ` · ${doc.note}` : ''}
+                      {doc.note && <> · <CopyText text={doc.note} /></>}
                     </div>
                     <ExpiryBadge expiryDate={doc.expiryDate} />
                   </div>

@@ -3,6 +3,7 @@ import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { useDb } from '../state/DbContext.jsx';
 import { PAGE_KINDS } from '../lib/constants.js';
 import { formatBytes, openExternally, shareFiles } from '../lib/files.js';
+import CopyText from '../components/CopyText.jsx';
 import Icon from '../components/Icon.jsx';
 import ZoomImage from '../components/ZoomImage.jsx';
 import DocSheet from '../components/DocSheet.jsx';
@@ -92,6 +93,8 @@ export default function Viewer() {
           <Icon name="star" filled={doc.pinned} />
         </button>
       </div>
+
+      {doc.note && <div className="viewer-note"><CopyText text={doc.note} /></div>}
 
       <div className="viewer-stage">
         {!page ? (

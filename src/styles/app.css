@@ -502,3 +502,14 @@
   padding: var(--space-6);
   text-align: center;
 }
+
+/* Номер, который копируется по нажатию */
+.copy-token {
+  color: var(--accent);
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.viewer-note { text-align: center; font-size: var(--text-sm); color: #fff; padding: 0 var(--space-4) var(--space-2); }
+.viewer-note .copy-token { color: #F2C9B4; }
