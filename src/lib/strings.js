@@ -16,7 +16,7 @@ export const STRINGS = {
     updateAvailable: 'Есть обновление', updateButton: 'Обновить', newVersion: 'Новая версия',
     upToDate: 'Установлена последняя версия', checkUpdate: 'Проверить обновления', checking: 'Проверяю…',
     pinChanged: 'PIN изменён.', hide: 'Скрыть', preparing: 'Готовлю архив…', restoring: 'Восстанавливаю…',
-    diskUsed: 'Занято на диске', filesWord: '',
+    diskUsed: 'Занято на диске', filesWord: '', copied: 'Скопировано ✓',
   },
   en: {
     settings: 'Settings', back: 'Back', protection: 'Security', changePin: 'Change PIN',
@@ -27,7 +27,7 @@ export const STRINGS = {
     updateAvailable: 'Update available', updateButton: 'Update', newVersion: 'New version',
     upToDate: 'You have the latest version', checkUpdate: 'Check for updates', checking: 'Checking…',
     pinChanged: 'PIN changed.', hide: 'Hide', preparing: 'Preparing archive…', restoring: 'Restoring…',
-    diskUsed: 'Used on disk', filesWord: 'files',
+    diskUsed: 'Used on disk', filesWord: 'files', copied: 'Copied ✓',
   },
   uz: {
     settings: 'Sozlamalar', back: 'Orqaga', protection: 'Himoya', changePin: 'PIN-kodni oʻzgartirish',
@@ -38,7 +38,7 @@ export const STRINGS = {
     updateAvailable: 'Yangilanish bor', updateButton: 'Yangilash', newVersion: 'Yangi versiya',
     upToDate: 'Oxirgi versiya oʻrnatilgan', checkUpdate: 'Yangilanishni tekshirish', checking: 'Tekshirilmoqda…',
     pinChanged: 'PIN-kod oʻzgartirildi.', hide: 'Yashirish', preparing: 'Arxiv tayyorlanmoqda…', restoring: 'Tiklanmoqda…',
-    diskUsed: 'Diskda band', filesWord: 'fayl',
+    diskUsed: 'Diskda band', filesWord: 'fayl', copied: 'Nusxalandi ✓',
   },
   uzc: {
     settings: 'Созламалар', back: 'Орқага', protection: 'Ҳимоя', changePin: 'PIN-кодни ўзгартириш',
@@ -49,6 +49,6 @@ export const STRINGS = {
     updateAvailable: 'Янгиланиш бор', updateButton: 'Янгилаш', newVersion: 'Янги версия',
     upToDate: 'Охирги версия ўрнатилган', checkUpdate: 'Янгиланишни текшириш', checking: 'Текширилмоқда…',
     pinChanged: 'PIN-код ўзгартирилди.', hide: 'Яшириш', preparing: 'Архив тайёрланмоқда…', restoring: 'Тикланмоқда…',
-    diskUsed: 'Дискда банд', filesWord: 'файл',
+    diskUsed: 'Дискда банд', filesWord: 'файл', copied: 'Нусхаланди ✓',
   },
 };

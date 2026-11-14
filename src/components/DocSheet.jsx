@@ -216,7 +216,7 @@ export default function DocSheet({ db, doc, picked = [], startWithConfirm = fals
         {notes.map((n, i) => (
           <div key={i} className="note-row">
             <input id={`doc-note-${i}`} value={n}
-              placeholder={i === 0 ? 'Например: ЖШШИР 12345678901234' : 'Например: Паспорт AA1234567'}
+              placeholder={i === 0 ? 'Например: ЖШШИР: 12345678901234' : 'Например: Адрес: г. Ташкент, ул. Навои, 12'}
               onChange={(e) => setNotes((prev) => prev.map((x, j) => (j === i ? e.target.value : x)))} />
             {(notes.length > 1 || n) && (
               <button type="button" className="icon-btn" aria-label="Убрать заметку"
@@ -231,7 +231,7 @@ export default function DocSheet({ db, doc, picked = [], startWithConfirm = fals
           <Icon name="plus" size={16} />
           Добавить заметку
         </button>
-        <div className="field-hint">Номер паспорта, ЖШШИР и другое — нажатием на номер он копируется.</div>
+        <div className="field-hint">Нажатие на заметку копирует её. «Название: значение» — копируется только значение.</div>
       </div>
 
       <div className="field">

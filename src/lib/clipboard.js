@@ -21,20 +21,17 @@ export async function copyText(text) {
   }
 }
 
-/** Разбивает текст на куски; «номером» считается слово, где есть цифра и хотя бы 4 символа. */
-export function splitCopyable(text) {
-  const parts = [];
-  const re = /[^\s,;:()]+/g;
-  let last = 0;
-  let m;
-  while ((m = re.exec(text))) {
-    const word = m[0];
-    if (word.length >= 4 && /\d/.test(word)) {
-      if (m.index > last) parts.push({ text: text.slice(last, m.index) });
-      parts.push({ text: word, copy: true });
-      last = m.index + word.length;
-    }
-  }
-  if (last < text.length) parts.push({ text: text.slice(last) });
-  return parts;
+/** Заметки документа: каждая — отдельная строка. */
+export function noteLines(note) {
+  return String(note || '').split('\n').map((l) => l.trim()).filter(Boolean);
+}
+
+/**
+ * Что копируется по нажатию на заметку. «Название: значение» (двоеточие и
+ * пробел) — копируется только значение; всё остальное, включая номер
+ * кадастра вида 12:34:56, — строка целиком.
+ */
+export function noteValue(line) {
+  const m = line.match(/^[^:]*?:\s+(.+)$/);
+  return m ? m[1].trim() : line;
 }

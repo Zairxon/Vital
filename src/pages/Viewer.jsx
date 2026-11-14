@@ -3,7 +3,7 @@ import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import { useDb } from '../state/DbContext.jsx';
 import { PAGE_KINDS } from '../lib/constants.js';
 import { formatBytes, openExternally, shareFiles } from '../lib/files.js';
-import CopyText from '../components/CopyText.jsx';
+import CopyNotes from '../components/CopyNote.jsx';
 import Icon from '../components/Icon.jsx';
 import ZoomImage from '../components/ZoomImage.jsx';
 import DocSheet from '../components/DocSheet.jsx';
@@ -94,7 +94,7 @@ export default function Viewer() {
         </button>
       </div>
 
-      {doc.note && <div className="viewer-note">{doc.note.split('\n').filter(Boolean).map((line, i) => <div key={i}><CopyText text={line} /></div>)}</div>}
+      {doc.note && <CopyNotes note={doc.note} className="viewer-note" />}
 
       <div className="viewer-stage">
         {!page ? (
