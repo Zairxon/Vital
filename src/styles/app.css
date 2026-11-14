@@ -553,3 +553,14 @@
 
 /* Плашка «Есть обновление» */
 .update-banner { background: var(--bg-card); border-color: var(--accent); font-size: var(--text-sm); }
+
+/* Выбор месяца и года прокруткой */
+.cal-title-btn { display: inline-flex; align-items: center; gap: var(--space-1); padding: var(--space-2) var(--space-3); border-radius: var(--radius-md); }
+.cal-title-btn:active { background: var(--bg-elevated); }
+.ym-picker { display: flex; gap: var(--space-2); margin-bottom: var(--space-4); }
+.ym-col { flex: 1; height: 264px; overflow-y: auto; position: relative; background: var(--bg-card); border-radius: var(--radius-md); padding: var(--space-1); scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+.ym-col::-webkit-scrollbar { width: 6px; }
+.ym-col::-webkit-scrollbar-thumb { background: var(--border); border-radius: var(--radius-full); }
+.ym-item { display: block; width: 100%; min-height: 44px; border-radius: var(--radius-sm); color: var(--text); font-size: var(--text-base); text-align: center; }
+.ym-item:active { background: var(--bg-elevated); }
+.ym-item.is-selected { background: var(--accent); color: var(--text-on-accent); font-weight: var(--fw-semibold); }

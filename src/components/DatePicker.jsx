@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Sheet from './Sheet.jsx';
 import Icon from './Icon.jsx';
 
@@ -7,6 +7,10 @@ const MONTHS = [
   'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь',
 ];
 const WEEKDAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+
+const YEAR_FROM = 1950;
+const YEAR_TO = 2100;
+const YEARS = Array.from({ length: YEAR_TO - YEAR_FROM + 1 }, (_, i) => YEAR_FROM + i);
 
 const pad = (n) => String(n).padStart(2, '0');
 const toIso = (y, m, d) => `${y}-${pad(m + 1)}-${pad(d)}`;
@@ -27,6 +31,18 @@ export default function DatePicker({ value, onPick, onClose }) {
   const start = value ? new Date(`${value.slice(0, 10)}T00:00:00`) : today;
   const [year, setYear] = useState(start.getFullYear());
   const [month, setMonth] = useState(start.getMonth());
+  const [choosingYm, setChoosingYm] = useState(false);
+  const yearsRef = useRef(null);
+  const monthsRef = useRef(null);
+
+  // При открытии выбора месяца и года выбранные значения прокручиваются в центр.
+  useEffect(() => {
+    if (!choosingYm) return;
+    for (const ref of [yearsRef, monthsRef]) {
+      const el = ref.current?.querySelector('.is-selected');
+      if (el) ref.current.scrollTop = el.offsetTop - ref.current.clientHeight / 2 + el.clientHeight / 2;
+    }
+  }, [choosingYm]);
 
   const firstOffset = (new Date(year, month, 1).getDay() + 6) % 7; // понедельник — первый
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -49,12 +65,31 @@ export default function DatePicker({ value, onPick, onClose }) {
         <button type="button" className="icon-btn" onClick={() => shift(-1)} aria-label="Предыдущий месяц">
           <Icon name="back" size={20} />
         </button>
-        <div className="cal-title">{MONTHS[month]} {year}</div>
+        <button type="button" className="cal-title cal-title-btn" onClick={() => setChoosingYm((v) => !v)}>
+          {MONTHS[month]} {year}
+          <Icon name={choosingYm ? 'up' : 'down'} size={16} />
+        </button>
         <button type="button" className="icon-btn" onClick={() => shift(1)} aria-label="Следующий месяц">
           <Icon name="chevron" size={20} />
         </button>
       </div>
 
+      {choosingYm ? (
+        <div className="ym-picker">
+          <div className="ym-col" ref={monthsRef}>
+            {MONTHS.map((m, i) => (
+              <button type="button" key={m} className={'ym-item' + (i === month ? ' is-selected' : '')}
+                onClick={() => setMonth(i)}>{m}</button>
+            ))}
+          </div>
+          <div className="ym-col" ref={yearsRef}>
+            {YEARS.map((y) => (
+              <button type="button" key={y} className={'ym-item' + (y === year ? ' is-selected' : '')}
+                onClick={() => setYear(y)}>{y}</button>
+            ))}
+          </div>
+        </div>
+      ) : (
       <div className="cal-grid">
         {WEEKDAYS.map((w) => <div key={w} className="cal-wd">{w}</div>)}
         {cells.map((d, i) => {
@@ -67,10 +102,15 @@ export default function DatePicker({ value, onPick, onClose }) {
           );
         })}
       </div>
+      )}
 
       <div className="sheet-actions">
         <button type="button" className="btn btn-ghost" onClick={onClose}>Отмена</button>
-        <button type="button" className="btn btn-primary" onClick={() => onPick(todayIso)}>Сегодня</button>
+        {choosingYm ? (
+          <button type="button" className="btn btn-primary" onClick={() => setChoosingYm(false)}>Готово</button>
+        ) : (
+          <button type="button" className="btn btn-primary" onClick={() => onPick(todayIso)}>Сегодня</button>
+        )}
       </div>
     </Sheet>
   );
